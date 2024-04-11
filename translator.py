@@ -1,38 +1,76 @@
-import sys, re
+import sys
+from preprocessor import preprocess
+from isa import functions, Instruction
 
-def remove_extra_spaces(source_lines):
-    for line in source_lines:
-        line = re.sub(r'\s+', ' ', line)
+def parse_lisp(source):
+    source = source.strip()
+    assert source[0] == '(' and source[-1] == ')', "Wrong brackets sequence"
 
-def remove_single_line_comments(source_lines):
-    for line in source_lines:
-        line = line[0 : line.find(';')]
+    source = source[1: -1]
 
-def remove_multi_line_comments(source_lines):
-    # for line in source_lines:
-    #     line = line[0 : line.find(';')]
+    # Recursion endpoint - No brackets
+    if not (('(' in source) or (')' in source)):
+        terms = source.split(' ')
 
-def remove_empty_lines(source_lines):
+        if len(terms) == 1:
+            if terms[0] in functions:
+                return Instruction(terms[0], None)
+            else:
+                return terms[0]
+
+        assert terms[0] in functions, f'Function {terms[0]} doesn\'t exist'
+        return Instruction(terms[0], terms[1: len(terms)])
+
+    # Resolve args
+    is_started = False
+
+    start_idx = 0
+    end_idx = 0
+    cntr = 0
+
+    opcode = ""
+    args = []
+
+    for i in range(len(source)):
+        if source[i] == '(':
+            if not is_started:
+                is_started = True
+                start_idx = i
+            cntr += 1
+        elif source[i] == ')':
+            cntr -= 1
+            if cntr == 0:
+                end_idx = i
+                is_started = False
+                if len(args) == 0:
+                    opcode = source[0:start_idx].strip()
+                    assert opcode in functions, f'Function {opcode} doesn\'t exist'
+                args.append(parse_lisp(source[start_idx: end_idx + 1]))
+
+        assert cntr >= 0, f'Wrong code format (missed brackets)'
+
+    return Instruction(opcode, args)
 
 
-def preprocess(source):
-    lines = source.splitlines()
-
-    for line in lines:
+    assert cntr == 0, f'Wrong code format (extra brackets)'
 
 
 
 def translate(source):
+    source = preprocess(source)
+    res = parse_lisp(source)
+    return res
 
-    return
+f = open("LispFuncs/count.lsp", 'r')
+print(translate(f.read()))
 
-def main(source, target):
-    f = open(sys.argv[0], "r")
-    source = f.read()
-    machine_code = translate(source)
-    write_machine_code(target)
-
-if __name__ == "__main__":
-    assert len(sys.argv) == 3, "Correct use of translator: translation.py <source_file> <output_file>"
-    name, source, target = sys.argv
-    main(source, target)
+# def main(source, target):
+#     f = open(sys.argv[0], "r")
+#     source = f.read()
+#     machine_code = translate(source)
+#     write_machine_code(target)
+#
+# if __name__ == "__main__":
+#     assert len(sys.argv) == 3, "Correct use of translator: translation.py <source_file> <output_file>"
+#     name, source, target = sys.argv
+#     main(source, target)
