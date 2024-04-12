@@ -1,15 +1,25 @@
-from preprocessor import preprocess
+import re
+import sys
+
 from isa import functions, Instruction
+from preprocessor import preprocess
+
+
+def split_string_with_quotes(s):
+    parts = re.findall(r'"[^"]*"|[^\s]+', s)
+    return parts
 
 def parse_lisp(source):
     source = source.strip()
     assert source[0] == '(' and source[-1] == ')', "Wrong brackets sequence"
 
     source = source[1: -1]
+    if source == '':
+        return Instruction(None, None)
 
     # Recursion endpoint - No brackets
     if not (('(' in source) or (')' in source)):
-        terms = source.split(' ')
+        terms = split_string_with_quotes(source)
 
         if len(terms) == 1:                                                                        # (val) case
             if terms[0] in functions:
@@ -21,7 +31,7 @@ def parse_lisp(source):
                 return Instruction(terms[0], [terms[1]])
             return Instruction('', terms)
 
-        assert (terms[0] in functions) or terms[0] == '',  f'Function {terms[0]} doesn\'t exist'     # (op arg1 arg2) case
+        assert (terms[0] in functions) or terms[0] == '',  f'Function {terms[0]} doesn\'t exist'   # (op arg1 arg2) case
         return Instruction(terms[0], terms[1: len(terms)])
 
     # Resolve args
@@ -51,28 +61,23 @@ def parse_lisp(source):
 
                 args.append(parse_lisp(source[start_idx: end_idx + 1]))
 
-        assert cntr >= 0, f'Wrong code format (missed brackets)'
+        assert cntr >= 0, "Wrong code format (missed brackets)"
 
-    assert cntr == 0, f'Wrong code format (extra brackets)'
+    assert cntr == 0, "Wrong code format (extra brackets)"
     return Instruction(opcode, args)
-
-
 
 def translate(source):
     source = preprocess(source)
     res = parse_lisp(source)
     return res
 
-f = open("LispFuncs/count.lsp", 'r')
-print(translate(f.read()))
+def main(source, target):
+    f = open(source, "r")
+    source = f.read()
+    s_exps = translate(source)
+    print(s_exps)
 
-# def main(source, target):
-#     f = open(sys.argv[0], "r")
-#     source = f.read()
-#     machine_code = translate(source)
-#     write_machine_code(target)
-#
-# if __name__ == "__main__":
-#     assert len(sys.argv) == 3, "Correct use of translator: translation.py <source_file> <output_file>"
-#     name, source, target = sys.argv
-#     main(source, target)
+if __name__ == "__main__":
+    assert len(sys.argv) == 3, "Correct use of translator: translation.py <source_file> <output_file>"
+    name, source, target = sys.argv
+    main(source, target)
