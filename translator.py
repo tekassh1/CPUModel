@@ -1,4 +1,3 @@
-import sys
 from preprocessor import preprocess
 from isa import functions, Instruction
 
@@ -12,13 +11,17 @@ def parse_lisp(source):
     if not (('(' in source) or (')' in source)):
         terms = source.split(' ')
 
-        if len(terms) == 1:
+        if len(terms) == 1:                                                                        # (val) case
             if terms[0] in functions:
                 return Instruction(terms[0], None)
             else:
                 return terms[0]
+        elif len(terms) == 2:                                                                      # (var value) case
+            if terms[0] in functions:
+                return Instruction(terms[0], [terms[1]])
+            return Instruction('', terms)
 
-        assert terms[0] in functions, f'Function {terms[0]} doesn\'t exist'
+        assert (terms[0] in functions) or terms[0] == '',  f'Function {terms[0]} doesn\'t exist'     # (op arg1 arg2) case
         return Instruction(terms[0], terms[1: len(terms)])
 
     # Resolve args
@@ -44,15 +47,14 @@ def parse_lisp(source):
                 is_started = False
                 if len(args) == 0:
                     opcode = source[0:start_idx].strip()
-                    assert opcode in functions, f'Function {opcode} doesn\'t exist'
+                    assert opcode in functions or opcode == '', f'Function {opcode} doesn\'t exist'
+
                 args.append(parse_lisp(source[start_idx: end_idx + 1]))
 
         assert cntr >= 0, f'Wrong code format (missed brackets)'
 
-    return Instruction(opcode, args)
-
-
     assert cntr == 0, f'Wrong code format (extra brackets)'
+    return Instruction(opcode, args)
 
 
 

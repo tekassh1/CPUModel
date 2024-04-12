@@ -1,7 +1,7 @@
 from enum import Enum
 
 functions = ["let", "progn", 'or', 'and', 'incf', 'setq', 'input', 'read', 'print', 'loop', 'if', 'return', 'mod', 'zerop',
-             '+', '-', '*', '/', '>', '<', '=', '<=', '>=', '', 'format', 'terpri', 'end-of-file', 'handler-case']
+             '+', '-', '*', '/', '>', '<', '=', '<=', '>=', 'format', 'terpri', 'end-of-file', 'handler-case']
 
 # class Opcode(Enum):
 #     LET = "let"
@@ -43,7 +43,7 @@ class Opcode(str, Enum):
     HLT = 'halt'
 
 class Instruction:
-    def __init__(self, opcode: Opcode, args):
+    def __init__(self, opcode, args):
         if args is None:
             self.args = []
 
