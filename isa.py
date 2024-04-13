@@ -1,59 +1,58 @@
 from enum import Enum
 
-functions = ["let", "progn", 'or', 'and', 'incf', 'setq', 'input', 'read', 'print', 'loop', 'if', 'return', 'mod', 'zerop',
-             '+', '-', '*', '/', '>', '<', '=', '<=', '>=', 'format', 'terpri', 'end-of-file', 'handler-case']
 
-# class Opcode(Enum):
-#     LET = "let"
-#     PROGN = "progn"
-#     LOOP = "loop"
-#     IF = "if"
-#     OR = "or"
-#     AND = "and"
-#     INCF = "incf"
-#     PRINT = "print"
-#     PLUS = "+"
-#     MINUS = "-"
-#     MUL = "*"
-#     DIV = "/"
-#     EQ = "="
-#     LS = "<"
-#     MR = ">"
-#     LEQ = "<="
-#     MEQ = ">="
+class LispFunctions(str, Enum):
+    LET = "let"
+    PROGN = "progn"
+    OR = "or"
+    AND = "and"
+    INCF = "incf"
+    SETQ = "setq"
+    INPUT = "input"
+    READ = "read"
+    PRINT = "print"
+    LOOP = "loop"
+    IF = "if"
+    RETURN = "return"
+    MOD = "mod"
+    ZEROP = "zerop"
+    PLUS = "+"
+    MINUS = "-"
+    MUL = "*"
+    DIV = "/"
+    GR = ">"
+    LE = "<"
+    EQ = "="
+    LOE = "<="
+    GOE = ">="
+    FORMAT = "format"
+    TERPRI = "terpri"
+
 
 class Opcode(str, Enum):
-    """Opcode для ISA."""
     LOAD = 'load'
-    LOAD_CONST = 'loadc'
-    LOAD_INDIRECT = 'load_indir'
     STORE = 'store'
-    STORE_INDIRECT = 'store_indir'
     ADD = 'add'
-    ADD_CONST = 'addc'
     SUB = 'sub'
-    PRINT = 'print'
-    PRINT_INT = 'print_int'
+    MUL = 'mul'
     READ = 'read'
+    PRINT = 'print'
     JMP = 'jmp'
-    JE = 'je'
-    JNE = 'jne'
-    JG = 'jg'
-    JL = 'jl'
     HLT = 'halt'
 
-class Instruction:
-    def __init__(self, opcode, args):
+
+class SExpression:
+    def __init__(self, function, args):
         if args is None:
             self.args = []
 
-        self.opcode = opcode
+        self.function = function
         self.args = args
 
     def __str__(self):
-        return f"{{Opcode: {self.opcode}, args: {self.args}}}"
+        return f"{{Opcode: {self.function}, args: {self.args}}}"
 
     def __repr__(self):
         return self.__str__()
-        # # args_str = ', '.join(map(str, self.args))
-        # return f"{{Opcode: {self.opcode}, args: [{args_str}]}}"
+
+# {Opcode: let, args: [{Opcode: , args: [{Opcode: , args: [{Opcode: , args: [{Opcode: , args: [{Opcode: , args: ['curr', '0']}]}]}]}, {Opcode: , args: [{Opcode: , args: [{Opcode: , args: [{Opcode: , args: ['sum', '0']}]}]}]}]}, {Opcode: progn, args: [{Opcode: loop, args: [{Opcode: if, args: [{Opcode: >, args: ['curr', '1000']}, {Opcode: return, args: None}, {Opcode: if, args: [{Opcode: or, args: [{Opcode: zerop, args: [{Opcode: mod, args: ['curr', '3']}]}, {Opcode: zerop, args: [{Opcode: mod, args: ['curr', '5']}]}]}, {Opcode: incf, args: ['sum', 'curr']}]}]}, {Opcode: incf, args: ['curr']}]}, {Opcode: print, args: ['sum']}]}]}

@@ -1,1 +1,2 @@
-Determine string args
+~~Determine string args~~
+Translate s-exp to machine instructions
