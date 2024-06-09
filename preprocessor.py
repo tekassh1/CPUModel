@@ -1,26 +1,38 @@
 import re
 
-def remove_single_line_comments(source):
-    return re.sub(r';.*\n', '\n', source)
+def remove_comments(source):
+    lines = source.split('\n')
+    cleaned_source = []
+    for line in lines:
+        line = re.sub(r';.*$', '', line)
+        cleaned_source.append(line)
 
-def remove_multi_line_comments(source):
-    return re.sub(r'\|#.*#\|', '', source)
-
-def remove_newlines(source):
-    return re.sub(r'\n', ' ', source)
-
-def add_spaces_to_brackets(source):
-    source = re.sub(r'\(', ' (', source)
-    return re.sub(r'\)', ') ', source)
+    cleaned_text = '\n'.join(cleaned_source)
+    return cleaned_text
 
 def remove_extra_spaces(source):
-    return re.sub(r'\s+', ' ', source)
+    lines = source.split('\n')
+    cleaned_source = []
+    for line in lines:
+        line = line.strip()
+        line = ' '.join(line.split())
+        cleaned_source.append(line)
+
+    cleaned_text = '\n'.join(cleaned_source)
+    return cleaned_text
+
+def remove_empty_strings(source):
+    lines = source.split('\n')
+    cleaned_source = []
+    for line in lines:
+        if line != "":
+            cleaned_source.append(line)
+
+    cleaned_text = '\n'.join(cleaned_source)
+    return cleaned_text
 
 def preprocess(source):
-    source = remove_single_line_comments(source)
-    source = remove_multi_line_comments(source)
-    source = remove_newlines(source)
-    source = add_spaces_to_brackets(source)
+    source = remove_comments(source)
     source = remove_extra_spaces(source)
-
+    source = remove_empty_strings(source)
     return source
